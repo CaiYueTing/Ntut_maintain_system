@@ -1,6 +1,6 @@
 import * as chatbase from "@google/chatbase"
 
-import { CHATBASE } from "../chatbotConfig"
+import { CHATBASE } from "../configs/chatbotConfig"
 
 export const sendMessageToChatBase = (userId: string, message: string, intent: string, platform: string, type: string, version?: string): Promise<any> => {
     if (type === "user")

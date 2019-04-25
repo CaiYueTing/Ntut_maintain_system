@@ -1,14 +1,10 @@
 import * as functions from 'firebase-functions';
 import { Client, validateSignature, WebhookEvent, Message, TextMessage, TemplateMessage } from "@line/bot-sdk"
 import * as Dialogflow from "apiai"
-import * as MomentZone from "moment-timezone"
 import * as chatbaseService from "./services/chatbaseService"
-import * as maintainService from "./services/maintainService"
+import { MaintainService } from "./services/MaintainService";
 
-import { maintainColumn } from "./sheetColumn"
-import { LINE, DIALOGFLOW } from "./chatbotConfig"
-import { request } from 'https';
-import { Maintain } from './model';
+import { LINE, DIALOGFLOW } from "./configs/chatbotConfig"
 
 const lineClient = new Client({
     channelSecret: LINE.channelSecret,
@@ -49,7 +45,7 @@ const eventDispatcher = (event: WebhookEvent): void => {
     }
 }
 
-//event follow start 
+//event follow start
 const replyFollowMessage = async (replyToken: string, userId: string): Promise<any> => {
     const lineMessage: TextMessage = {
         type: "text",
@@ -68,7 +64,7 @@ const pushCommandMessage = (userId: string): Promise<any> => {
 }
 //event follow end
 
-//event join start 
+//event join start
 const replyJoinMessage = (replyToken: string, groupId: string): Promise<any> => {
     const url = `https://docs.google.com/forms/d/e/1FAIpQLScVJ6HRVM9Gnkvyb43mdxOEcB472LklXGPLBwo7RDw4i2t1GQ/viewform?usp=pp_url&entry.1321795441&entry.1527073535=${groupId}`
 
@@ -90,10 +86,10 @@ const replyJoinMessage = (replyToken: string, groupId: string): Promise<any> => 
     }
     return pushMessage(groupId, lineMessage)
 
-    
+
 }
 
-//event join end 
+//event join end
 
 
 const messageDispatcher = (userId: string, message: string): void => {
@@ -106,20 +102,20 @@ const messageDispatcher = (userId: string, message: string): void => {
 }
 
 const actionDispatcher = (userId: string, result: any): void => {
-    
+
     const action = result.action
     switch(action){
         case "requestReport":
-            
+
             requestReport(userId, result)
             break
         case "searchReport":
-            
-            searchReport(userId, result)         
+
+            searchReport(userId, result)
             break
         default:
             pushErrorMessage(userId, result)
-            break        
+            break
     }
 }
 
@@ -145,26 +141,27 @@ const requestReport = (userId: string, result: any): Promise<any> => {
     return pushMessage(userId, lineMessage)
 }
 
-const searchReport = async (userId: string, result: any) => {   
-    const responseText = result.fulfillment.speech as string    
-    const maintain = await maintainService.getMaintainById(result.parameters.number)
-    
-    if (maintain.id == null){
+const searchReport = async (userId: string, result: any) => {
+
+    const maintainService = new MaintainService();
+    const maintain = await maintainService.getMaintainById(result.parameters.number);
+
+    if (maintain.Id == null){
         const lineMessage: TextMessage = {
             type: "text",
             text: `您所查詢的單號不存在`
-        }
+        };
         pushMessage(userId, lineMessage)
     }else {
-        const maintainState = getMaintainState(maintain.maintainState)
-        
+        const maintainState = getMaintainState(maintain.MaintainState)
+
         const lineMessage: TextMessage = {
             type: "text",
-            text: `單號：${maintain.id}\n${maintain.locate}樓 ${maintain.item}\n目前的維修狀態為${maintainState}`
-        }
+            text: `單號：${maintain.Id}\n${maintain.Locate}樓 ${maintain.Item}\n目前的維修狀態為${maintainState}`
+        };
         pushMessage(userId, lineMessage)
-    }    
-}
+    }
+};
 
 const getMaintainState = (maintainState: string): "尚未完成" | "已在維修中，請耐心等候" | "已經完成囉，感謝您的報修" =>{
     if (maintainState == "0"){
@@ -177,9 +174,9 @@ const getMaintainState = (maintainState: string): "尚未完成" | "已在維修
 }
 
 
-//broadcast end 
+//broadcast end
 
-//publish function 
+//publish function
 const pushErrorMessage = async (userId: string, result: any): Promise<any> => {
     const lineMessage: TextMessage = {
         type: "text",
@@ -194,7 +191,7 @@ const replyMessage = (replyToken: string, lineMessage: Message | Array<Message>)
 
 export const pushTextMessage = functions.https.onRequest((req, res) => {
     const message = req.body.message
-    const lineId = req.body.lineId
+    const lineId = req.body.LineId
     const textMessage: TextMessage = {
         type: "text",
         text: message

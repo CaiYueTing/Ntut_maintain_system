@@ -3,7 +3,7 @@ import { OAuth2Client } from "google-auth-library"
 
 import axios from "axios"
 
-import { sheetClientSecret, sheetToken } from "../chatbotConfig"
+import { sheetClientSecret, sheetToken } from "../configs/chatbotConfig"
 
 export const authorize = (): Promise<OAuth2Client> => {
     return new Promise(resolve => {
