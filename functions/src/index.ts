@@ -3,18 +3,18 @@ import { Client, validateSignature, WebhookEvent, Message, TextMessage, Template
 import * as Dialogflow from "apiai"
 import * as chatbaseService from "./services/chatbaseService"
 import { MaintainService } from "./services/MaintainService";
-import { LINE, DIALOGFLOW } from "./configs/chatbotConfig"
+import { Config } from "./configs/chatbotConfig"
 
 const lineClient = new Client({
-    channelSecret: LINE.channelSecret,
-    channelAccessToken: LINE.channelAccessToken
+    channelSecret: Config.LINE.channelSecret,
+    channelAccessToken: Config.LINE.channelAccessToken
 });
 
-const dialogflowAgent = Dialogflow(DIALOGFLOW.agentToken);
+const dialogflowAgent = Dialogflow(Config.DIALOGFLOW.agentToken);
 
 export const webhook = functions.https.onRequest((req, res) => {
     const signature = req.headers["x-line-signature"] as string;
-    if (validateSignature(JSON.stringify(req.body), LINE.channelSecret, signature)) {
+    if (validateSignature(JSON.stringify(req.body), Config.LINE.channelSecret, signature)) {
         const events = req.body.events as Array<WebhookEvent>;
         events.forEach(event => eventDispatcher(event))
     }

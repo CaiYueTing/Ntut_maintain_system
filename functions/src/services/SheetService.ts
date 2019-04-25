@@ -1,19 +1,19 @@
 import { google } from "googleapis"
 import { OAuth2Client } from "google-auth-library"
 import axios from "axios"
-import { sheetClientSecret, sheetToken } from "../configs/chatbotConfig"
+import { Config } from "../configs/chatbotConfig"
 
 export class SheetService {
 
     public authorize(): Promise<OAuth2Client> {
         return new Promise(resolve => {
-            const secret = sheetClientSecret.installed.client_secret;
-            const clientId = sheetClientSecret.installed.client_id;
-            const redirectUrl = sheetClientSecret.installed.redirect_uris[0];
+            const secret = Config.SHEETCLIENTSECRET.installed.client_secret;
+            const clientId = Config.SHEETCLIENTSECRET.installed.client_id;
+            const redirectUrl = Config.SHEETCLIENTSECRET.installed.redirect_uris[0];
             const oauth2Client = new OAuth2Client(clientId, secret, redirectUrl);
             oauth2Client.setCredentials({
-                access_token: sheetToken.access_token,
-                refresh_token: sheetToken.refresh_token
+                access_token: Config.SHEETTOKEN.access_token,
+                refresh_token: Config.SHEETTOKEN.refresh_token
             });
             resolve(oauth2Client)
         });
