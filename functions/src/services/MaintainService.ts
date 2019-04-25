@@ -1,10 +1,11 @@
-import * as googleSheets from "../services/sheetService"
+import { SheetService } from "./SheetService"
 import { maintainColumn } from "../models/sheetColumn"
 import { Maintain } from "../models/Maintain";
 
 export class MaintainService {
 
     public async getMaintainById(maintainId: string): Promise<Maintain> {
+        const googleSheets = new SheetService();
         const auth = await googleSheets.authorize();
         const queryString =
             `select ${maintainColumn.maintainNumber},${maintainColumn.name},${maintainColumn.phone},${maintainColumn.time},${maintainColumn.locate},${maintainColumn.item},${maintainColumn.maintainState},${maintainColumn.lineId} where ${maintainColumn.maintainNumber} = ${maintainId}`;
