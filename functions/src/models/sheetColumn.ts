@@ -10,4 +10,4 @@ export const maintainColumn = {
     item: "F",
     maintainState: "G",
     lineId: "H"
-}
+};

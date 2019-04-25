@@ -275,5 +275,6 @@ __pycache__/
 #env file
 **/.*.env
 **/.env
+**/env.json
 
 lib/
