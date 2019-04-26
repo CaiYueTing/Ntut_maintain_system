@@ -195,6 +195,7 @@ ClientBin/
 
 # NPM
 node_modules/
+**/node_modules/
 
 # js compiled file
 build/
