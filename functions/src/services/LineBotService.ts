@@ -34,19 +34,7 @@ export class LineBotService {
      * @param lineMessage
      */
     public pushMessage(userId: string, lineMessage: Message | Array<Message>): Promise<any> {
-        if (Array.isArray(lineMessage)) {
-            for (const message of lineMessage) {
-                if (message.type === "text")
-                    chatbaseService.sendMessageToChatBase(userId, message.text, "reply", "Line", "agent");
-                else
-                    chatbaseService.sendMessageToChatBase(userId, `This is a ${message.type} template message`, "reply", "Line", "agent")
-            }
-        } else {
-            if (lineMessage.type === "text")
-                chatbaseService.sendMessageToChatBase(userId, lineMessage.text, "reply", "Line", "agent");
-            else
-                chatbaseService.sendMessageToChatBase(userId, `This is a ${lineMessage.type} template message`, "reply", "Line", "agent")
-        }
+        console.log(userId, lineMessage)
         return this.lineClient.pushMessage(userId, lineMessage)
     }
 

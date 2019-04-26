@@ -5,8 +5,9 @@ import { LineBotService } from "./services/LineBotService";
 
 export const pushTextMessage = functions.https.onRequest((req, res) => {
     const lineBotService = new LineBotService();
+    console.log(req.body)
     const message = req.body.message;
-    const lineId = req.body.LineId;
+    const lineId = req.body.lineId;
     const textMessage: TextMessage = {
         type: "text",
         text: message
@@ -26,3 +27,9 @@ export const webhook = functions.https.onRequest((req, res) => {
     }
     res.sendStatus(200)
 });
+
+
+export const helloworld = functions.https.onRequest((req,res)=>{
+    console.log("hello world")
+    res.sendStatus(200)
+})

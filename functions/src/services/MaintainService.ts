@@ -7,12 +7,15 @@ import {TemplateMessage, TextMessage} from "@line/bot-sdk";
 export class MaintainService {
 
     public async getMaintainById(maintainId: string): Promise<Maintain> {
+        console.log("getMaintain id:", maintainId)
         const googleSheets = new SheetService();
         const auth = await googleSheets.authorize();
+        console.log(auth)
         const queryString =
             `select ${maintainColumn.maintainNumber},${maintainColumn.name},${maintainColumn.phone},${maintainColumn.time},${maintainColumn.locate},${maintainColumn.item},${maintainColumn.maintainState},${maintainColumn.lineId} where ${maintainColumn.maintainNumber} = ${maintainId}`;
+        console.log(queryString)
         const value = await googleSheets.querySheet(auth, queryString, maintainColumn.sheetId, maintainColumn.gid);
-
+        console.log(value)
         let maintain = new Maintain();
         if (value.length) {
             maintain.Id = value[0][0];
