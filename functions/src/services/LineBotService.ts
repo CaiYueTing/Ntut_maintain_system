@@ -135,10 +135,7 @@ export class LineBotService {
             case "message":
                 if (event.message.type === "text") {
                     const message = event.message.text;
-                    if (event.source.type == "group")
-                        chatbaseService.sendMessageToChatBase(userId, message, "discuss", "Line", "user", "Group");
-                    else
-                        this.messageDispatcher(userId, event.message.text)
+                    this.messageDispatcher(userId, event.message.text)
                 }
                 break;
 
@@ -158,7 +155,6 @@ export class LineBotService {
 
         request.on("response", response => {
             this.actionDispatcher(userId, response.result);
-            chatbaseService.sendMessageToChatBase(userId, response.result.resolvedQuery, response.result.metadata.intentName, "Line", "user")
         }).end();
         request.on("error", error => console.log("Error: ", error))
     };
