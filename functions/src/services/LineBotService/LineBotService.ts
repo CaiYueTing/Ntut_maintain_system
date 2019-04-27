@@ -1,9 +1,10 @@
 import {Client, Message, TemplateMessage, TextMessage, WebhookEvent} from "@line/bot-sdk";
-import {Config} from "../configs/Config";
-import {MaintainService} from "./MaintainService";
+import {Config} from "../../configs/Config";
+import {MaintainService} from "../MaintainService/MaintainService";
 import * as Dialogflow from "apiai";
+import {ILineBotService} from "./ILineBotService";
 
-export class LineBotService {
+export class LineBotService implements ILineBotService {
 
     /**
      * Line bot client
@@ -32,8 +33,8 @@ export class LineBotService {
      * @param userId
      * @param lineMessage
      */
-    public pushMessage(userId: string, lineMessage: Message | Array<Message>): Promise<any> {
-        console.log(userId, lineMessage)
+    pushMessage(userId: string, lineMessage: Message | Array<Message>): Promise<any> {
+        console.log(userId, lineMessage);
         return this.lineClient.pushMessage(userId, lineMessage)
     }
 
