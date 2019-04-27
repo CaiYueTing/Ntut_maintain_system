@@ -6,7 +6,6 @@
 *.user
 *.userosscache
 *.sln.docstates
-env.ts
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
@@ -278,5 +277,6 @@ __pycache__/
 **/.*.env
 **/.env
 **/env.json
+**/env.ts
 
 lib/
