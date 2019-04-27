@@ -1,5 +1,5 @@
 import {Client, Message, TemplateMessage, TextMessage, WebhookEvent} from "@line/bot-sdk";
-import {Config} from "../configs/chatbotConfig";
+import {Config} from "../configs/Config";
 import {MaintainService} from "./MaintainService";
 import * as Dialogflow from "apiai";
 

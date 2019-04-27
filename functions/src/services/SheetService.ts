@@ -1,7 +1,7 @@
 import { google } from "googleapis"
 import { OAuth2Client } from "google-auth-library"
 import axios from "axios"
-import { Config } from "../configs/chatbotConfig"
+import { Config } from "../configs/Config"
 
 export class SheetService {
 
