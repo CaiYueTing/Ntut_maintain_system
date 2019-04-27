@@ -1,15 +1,14 @@
 import {Maintain} from "../../models/Maintain";
 import {TemplateMessage, TextMessage} from "@line/bot-sdk";
 import {ISheetService} from "../SheetService/ISheetService";
-import {SheetService} from "../SheetService/SheetService";
 import {IMaintainService} from "./IMaintainService";
+import {inject, injectable} from "inversify";
+import {TYPES} from "../../ioc/types";
 
+@injectable()
 export class MaintainService implements IMaintainService {
 
-    private readonly sheetService: ISheetService;
-
-    public constructor() {
-        this.sheetService = new SheetService();
+    public constructor(@inject(TYPES.ISheetService) private sheetService: ISheetService) {
     }
 
     private readonly maintainColumn = {

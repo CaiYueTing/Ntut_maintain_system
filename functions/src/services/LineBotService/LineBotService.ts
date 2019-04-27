@@ -1,32 +1,53 @@
+import * as Dialogflow from "apiai";
 import {Client, Message, TemplateMessage, TextMessage, WebhookEvent} from "@line/bot-sdk";
 import {Config} from "../../configs/Config";
-import {MaintainService} from "../MaintainService/MaintainService";
-import * as Dialogflow from "apiai";
 import {ILineBotService} from "./ILineBotService";
+import {ILineClientBuilder} from "./ILineClientBuilder";
+import {IMaintainService} from "../MaintainService/IMaintainService";
+import {inject, injectable} from "inversify";
+import {TYPES} from "../../ioc/types";
 
+@injectable()
 export class LineBotService implements ILineBotService {
-
-    /**
-     * Line bot client
-     */
-    private lineClient: Client;
-
-    /**
-     * Maintain Service
-     */
-    private maintainService: MaintainService;
 
     /**
      * Constructor
      */
-    public constructor() {
-        this.lineClient = new Client({
-            channelSecret: Config.LINE.channelSecret,
-            channelAccessToken: Config.LINE.channelAccessToken
-        });
-
-        this.maintainService = new MaintainService();
+    public constructor(
+        @inject(TYPES.ILineBotClientBuilder) private lineClientBuilder: ILineClientBuilder,
+        @inject(TYPES.IMaintainService) private maintainService: IMaintainService,
+        private lineClient: Client
+    ) {
     }
+
+    /**
+     * Line event dispatcher
+     * @param event
+     */
+    public eventDispatcher(event: WebhookEvent): Promise<any> {
+        const userId = event.source.userId;
+        switch (event.type) {
+            case "follow":
+                return this.replyFollowMessage(event.replyToken, userId);
+
+            case "join":
+                if (event.source.type === "group") {
+                    return this.replyJoinMessage(event.replyToken, event.source.groupId);
+                }
+
+                return Promise.resolve(null);
+
+            case "message":
+                if (event.message.type === "text") {
+                    this.messageDispatcher(userId, event.message.text)
+                }
+
+                return Promise.resolve(null);
+
+            default:
+                return Promise.resolve(null);
+        }
+    };
 
     /**
      * Push Message
@@ -34,44 +55,15 @@ export class LineBotService implements ILineBotService {
      * @param lineMessage
      */
     public pushMessage(userId: string, lineMessage: Message | Array<Message>): Promise<any> {
-        console.log(userId, lineMessage);
-
         return this.lineClient.pushMessage(userId, lineMessage)
     }
-
-    /**
-     * Push error message
-     * @param userId
-     * @param result
-     */
-    private async pushErrorMessage(userId: string, result: any): Promise<any> {
-        const lineMessage: TextMessage = {
-            type: "text",
-            text: (result.fulfillment.messages[0].speech as string).replace("{{message}}", result.resolvedQuery)
-        };
-
-        return this.pushMessage(userId, lineMessage)
-    };
-
-    /**
-     * Push command message
-     * @param userId
-     */
-    private pushCommandMessage(userId: string): Promise<any> {
-        const lineMessage: TextMessage = {
-            type: "text",
-            text: `《報修系統》指令如下，請多利用：\n1. 我要報修\n2. 查詢報修狀況，請輸入:\n查詢 0001(單號)`
-        };
-
-        return this.pushMessage(userId, lineMessage)
-    };
 
     /**
      * Reply Message
      * @param replyToken
      * @param lineMessage
      */
-    private replyMessage(replyToken: string, lineMessage: Message | Array<Message>): Promise<any> {
+    public replyMessage(replyToken: string, lineMessage: Message | Array<Message>): Promise<any> {
         return this.lineClient.replyMessage(replyToken, lineMessage)
     };
 
@@ -87,7 +79,12 @@ export class LineBotService implements ILineBotService {
         };
         await this.replyMessage(replyToken, lineMessage);
 
-        return this.pushCommandMessage(userId)
+        const commandMessage: TextMessage = {
+            type: "text",
+            text: `《報修系統》指令如下，請多利用：\n1. 我要報修\n2. 查詢報修狀況，請輸入:\n查詢 0001(單號)`
+        };
+
+        return this.pushMessage(userId, commandMessage)
     };
 
     /**
@@ -115,35 +112,6 @@ export class LineBotService implements ILineBotService {
         };
 
         return this.pushMessage(groupId, lineMessage)
-    };
-
-    /**
-     * Line event dispatcher
-     * @param event
-     */
-    public eventDispatcher(event: WebhookEvent): Promise<any> {
-        const userId = event.source.userId;
-        switch (event.type) {
-            case "follow":
-                return this.replyFollowMessage(event.replyToken, userId);
-
-            case "join":
-                if (event.source.type == "group") {
-                    return this.replyJoinMessage(event.replyToken, event.source.groupId);
-                }
-
-                return Promise.resolve(null);
-
-            case "message":
-                if (event.message.type === "text") {
-                    this.messageDispatcher(userId, event.message.text)
-                }
-
-                return Promise.resolve(null);
-
-            default:
-                return Promise.resolve(null);
-        }
     };
 
     /**
@@ -179,7 +147,12 @@ export class LineBotService implements ILineBotService {
                 return this.pushMessage(userId, searchReportMessage);
 
             default:
-                return this.pushErrorMessage(userId, result);
+                const errorMessage: TextMessage = {
+                    type: "text",
+                    text: (result.fulfillment.messages[0].speech as string).replace("{{message}}", result.resolvedQuery)
+                };
+
+                return this.pushMessage(userId, errorMessage);
         }
     };
 }

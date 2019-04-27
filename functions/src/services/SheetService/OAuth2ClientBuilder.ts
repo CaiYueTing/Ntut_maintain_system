@@ -1,10 +1,10 @@
-import {IOAuth2ClientFactory} from "./IOAuth2ClientFactory";
+import {IOAuth2ClientBuilder} from "./IOAuth2ClientBuilder";
 import {OAuth2Client} from "google-auth-library";
 import {Config} from "../../configs/Config";
 
-export class OAuth2ClientFactory implements IOAuth2ClientFactory {
+export class OAuth2ClientBuilder implements IOAuth2ClientBuilder {
 
-    getClient(): Promise<OAuth2Client> {
+    getOAuth2Client(): Promise<OAuth2Client> {
 
         return new Promise(resolve => {
             const secret = Config.SHEETCLIENTSECRET.installed.client_secret;

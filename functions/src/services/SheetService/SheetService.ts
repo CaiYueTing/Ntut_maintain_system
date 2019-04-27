@@ -1,22 +1,23 @@
-import {google} from "googleapis"
 import axios from "axios"
+import {google} from "googleapis"
+import {inject, injectable} from "inversify";
+import {IOAuth2ClientBuilder} from "./IOAuth2ClientBuilder";
 import {ISheetService} from "./ISheetService";
-import {IOAuth2ClientFactory} from "./IOAuth2ClientFactory";
-import {OAuth2ClientFactory} from "./OAuth2ClientFactory";
+import {OAuth2ClientBuilder} from "./OAuth2ClientBuilder";
+import {TYPES} from "../../ioc/types";
 
+@injectable()
 export class SheetService implements ISheetService {
 
-    private authClientFactory: IOAuth2ClientFactory;
-
-    public constructor() {
-        this.authClientFactory = new OAuth2ClientFactory();
+    public constructor(@inject(TYPES.IOAuth2ClientBuilder) private authClientFactory: IOAuth2ClientBuilder) {
+        this.authClientFactory = new OAuth2ClientBuilder();
     }
 
     readSheet(spreadsheetId: string, range: string): Promise<Array<any>> {
         return new Promise((resolve, reject) => {
             const sheets = google.sheets("v4");
             sheets.spreadsheets.values.get({
-                auth: this.authClientFactory.getClient(),
+                auth: this.authClientFactory.getOAuth2Client(),
                 spreadsheetId: spreadsheetId,
                 range: range
             }, (error, result) => {
@@ -33,7 +34,7 @@ export class SheetService implements ISheetService {
         return new Promise((resolve, reject) => {
             const sheets = google.sheets("v4");
             sheets.spreadsheets.values.append({
-                auth: this.authClientFactory.getClient(),
+                auth: this.authClientFactory.getOAuth2Client(),
                 spreadsheetId: spreadsheetId,
                 range: range,
                 valueInputOption: "USER_ENTERED",
@@ -59,7 +60,7 @@ export class SheetService implements ISheetService {
                 range: range,
                 valueInputOption: "USER_ENTERED",
                 resource: body,
-                auth: this.authClientFactory.getClient()
+                auth: this.authClientFactory.getOAuth2Client()
             }, (error, result) => {
                 if (error) {
                     console.log("The API returned an error: ", error);
@@ -77,7 +78,7 @@ export class SheetService implements ISheetService {
             const reg = /google.visualization.Query.setResponse\((.*)\)/g;
             const query = encodeURI(queryString);
             const url = `https://spreadsheets.google.com/tq?tqx=out:json&tq=${query}&key=${sheetId}&gid=${gid}`;
-            const auth = await this.authClientFactory.getClient();
+            const auth = await this.authClientFactory.getOAuth2Client();
             const token = await auth.refreshAccessToken();
             const headers = {
                 "Authorization": "Bearer " + token.credentials.access_token
