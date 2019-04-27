@@ -33,8 +33,9 @@ export class LineBotService implements ILineBotService {
      * @param userId
      * @param lineMessage
      */
-    pushMessage(userId: string, lineMessage: Message | Array<Message>): Promise<any> {
+    public pushMessage(userId: string, lineMessage: Message | Array<Message>): Promise<any> {
         console.log(userId, lineMessage);
+
         return this.lineClient.pushMessage(userId, lineMessage)
     }
 
@@ -120,27 +121,28 @@ export class LineBotService implements ILineBotService {
      * Line event dispatcher
      * @param event
      */
-    public eventDispatcher(event: WebhookEvent) {
+    public eventDispatcher(event: WebhookEvent): Promise<any> {
         const userId = event.source.userId;
         switch (event.type) {
             case "follow":
-                this.replyFollowMessage(event.replyToken, userId);
-                break;
+                return this.replyFollowMessage(event.replyToken, userId);
 
             case "join":
-                if (event.source.type == "group")
-                    this.replyJoinMessage(event.replyToken, event.source.groupId);
-                break;
+                if (event.source.type == "group") {
+                    return this.replyJoinMessage(event.replyToken, event.source.groupId);
+                }
+
+                return Promise.resolve(null);
 
             case "message":
                 if (event.message.type === "text") {
-                    const message = event.message.text;
                     this.messageDispatcher(userId, event.message.text)
                 }
-                break;
+
+                return Promise.resolve(null);
 
             default:
-                break
+                return Promise.resolve(null);
         }
     };
 
@@ -150,11 +152,11 @@ export class LineBotService implements ILineBotService {
      * @param message
      */
     private messageDispatcher(userId: string, message: string) {
-        const dialogflowAgent = Dialogflow(Config.DIALOGFLOW.agentToken);
-        const request = dialogflowAgent.textRequest(message, { sessionId: userId });
+        const dialogFlowAgent = Dialogflow(Config.DIALOGFLOW.agentToken);
+        const request = dialogFlowAgent.textRequest(message, { sessionId: userId });
 
         request.on("response", response => {
-            this.actionDispatcher(userId, response.result);
+            this.actionDispatcher(userId, response.result).catch(err => console.log(err));
         }).end();
         request.on("error", error => console.log("Error: ", error))
     };
@@ -164,21 +166,20 @@ export class LineBotService implements ILineBotService {
      * @param userId
      * @param result
      */
-    private actionDispatcher(userId: string, result: any) {
+    private async actionDispatcher(userId: string, result: any): Promise<any> {
         const action = result.action;
 
         switch(action){
             case "requestReport":
-                this.maintainService.requestReport(userId, result);
-                break;
+                const requestReportMessage = this.maintainService.requestReport(userId);
+                return this.pushMessage(userId, requestReportMessage);
 
             case "searchReport":
-                this.maintainService.searchReport(userId, result);
-                break;
+                const searchReportMessage = await this.maintainService.searchReport(userId, result);
+                return this.pushMessage(userId, searchReportMessage);
 
             default:
-                this.pushErrorMessage(userId, result);
-                break
+                return this.pushErrorMessage(userId, result);
         }
     };
 }

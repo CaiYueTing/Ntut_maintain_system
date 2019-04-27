@@ -1,8 +1,6 @@
 import {Maintain} from "../../models/Maintain";
-import {LineBotService} from "../LineBotService/LineBotService";
 import {TemplateMessage, TextMessage} from "@line/bot-sdk";
 import {ISheetService} from "../SheetService/ISheetService";
-import {ILineBotService} from "../LineBotService/ILineBotService";
 import {SheetService} from "../SheetService/SheetService";
 import {IMaintainService} from "./IMaintainService";
 
@@ -10,11 +8,8 @@ export class MaintainService implements IMaintainService {
 
     private readonly sheetService: ISheetService;
 
-    private readonly lineBotService: ILineBotService;
-
     public constructor() {
         this.sheetService = new SheetService();
-        this.lineBotService = new LineBotService();
     }
 
     private readonly maintainColumn = {
@@ -71,9 +66,10 @@ export class MaintainService implements IMaintainService {
         }
     };
 
-    requestReport(userId: string, result: any): Promise<any> {
+    requestReport(userId: string): TemplateMessage {
         let url = `https://docs.google.com/forms/d/e/1FAIpQLSd_xr_18k4FIPjBYECcwv2fc1dOT_IuZMxAgGJUuseg9KInmw/viewform?usp=pp_url&entry.815484785&entry.534784453&entry.1173029400&entry.142495844&entry.1574186958&entry.780437475=${userId}`;
-        const lineMessage: TemplateMessage = {
+
+        return {
             type: "template",
             altText: "This is a buttons template",
             template: {
@@ -88,30 +84,24 @@ export class MaintainService implements IMaintainService {
                     }
                 ]
             }
-        };
-
-        return this.lineBotService.pushMessage(userId, lineMessage)
+        }
     };
 
-    async searchReport(userId: string, result: any) {
+    async searchReport(userId: string, result: any): Promise<TextMessage> {
         const maintain = await this.getMaintainById(result.parameters.number);
 
         if (maintain.Id == null) {
-            const lineMessage: TextMessage = {
+            return {
                 type: "text",
                 text: `您所查詢的單號不存在`
             };
-
-            this.lineBotService.pushMessage(userId, lineMessage)
         } else {
             const maintainState = this.getMaintainState(maintain.MaintainState);
 
-            const lineMessage: TextMessage = {
+            return {
                 type: "text",
                 text: `單號：${maintain.Id}\n${maintain.Locate}樓 ${maintain.Item}\n目前的維修狀態為${maintainState}`
             };
-
-            this.lineBotService.pushMessage(userId, lineMessage)
         }
     };
 }

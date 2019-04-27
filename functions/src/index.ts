@@ -6,7 +6,7 @@ import {ILineBotService} from "./services/LineBotService/ILineBotService";
 
 export const pushTextMessage = functions.https.onRequest((req, res) => {
     const lineBotService: ILineBotService = new LineBotService();
-    console.log(req.body)
+    console.log(req.body);
     const message = req.body.message;
     const lineId = req.body.lineId;
     const textMessage: TextMessage = {
@@ -14,8 +14,12 @@ export const pushTextMessage = functions.https.onRequest((req, res) => {
         text: message
     };
 
-    lineBotService.pushMessage(lineId, textMessage);
-    res.sendStatus(200)
+    lineBotService.pushMessage(lineId, textMessage).then((_ => {
+        res.sendStatus(200)
+    })).catch(err => {
+        console.log(err);
+        res.sendStatus(400)
+    });
 });
 
 export const webhook = functions.https.onRequest((req, res) => {
@@ -24,13 +28,13 @@ export const webhook = functions.https.onRequest((req, res) => {
 
     if (validateSignature(JSON.stringify(req.body), Config.LINE.channelSecret, signature)) {
         const events = req.body.events as Array<WebhookEvent>;
-        events.forEach(event => lineBotService.eventDispatcher(event))
+        events.forEach(event => lineBotService.eventDispatcher(event).catch(err => console.log(err)))
     }
     res.sendStatus(200)
 });
 
 
 export const helloworld = functions.https.onRequest((req,res)=>{
-    console.log("hello world")
+    console.log("hello world");
     res.sendStatus(200)
-})
+});
