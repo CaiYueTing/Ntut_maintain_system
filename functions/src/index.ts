@@ -1,6 +1,6 @@
 import * as functions from 'firebase-functions';
 import { validateSignature, WebhookEvent, TextMessage } from "@line/bot-sdk"
-import { Config } from "./configs/chatbotConfig"
+import { Config } from "./configs/Config"
 import { LineBotService } from "./services/LineBotService";
 
 export const pushTextMessage = functions.https.onRequest((req, res) => {

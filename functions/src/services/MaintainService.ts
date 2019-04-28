@@ -1,21 +1,42 @@
 import { SheetService } from "./SheetService"
-import { maintainColumn } from "../models/sheetColumn"
 import { Maintain } from "../models/Maintain";
 import {LineBotService} from "./LineBotService";
 import {TemplateMessage, TextMessage} from "@line/bot-sdk";
 
 export class MaintainService {
 
+    private readonly maintainColumn = {
+        workspace: "維修表單",
+        sheetId: "1NXg4N7efrk35ATI94N8j8bTRPFwVc2cZ8zYt9AwzpYs",
+        gid: "0",
+        maintainNumber: "A",
+        name: "B",
+        phone: "C",
+        time: "D",
+        locate: "E",
+        item: "F",
+        maintainState: "G",
+        lineId: "H"
+    };
+
     public async getMaintainById(maintainId: string): Promise<Maintain> {
-        console.log("getMaintain id:", maintainId)
+        console.log("getMaintain id:", maintainId);
         const googleSheets = new SheetService();
         const auth = await googleSheets.authorize();
-        console.log(auth)
+        console.log(auth);
         const queryString =
-            `select ${maintainColumn.maintainNumber},${maintainColumn.name},${maintainColumn.phone},${maintainColumn.time},${maintainColumn.locate},${maintainColumn.item},${maintainColumn.maintainState},${maintainColumn.lineId} where ${maintainColumn.maintainNumber} = ${maintainId}`;
-        console.log(queryString)
-        const value = await googleSheets.querySheet(auth, queryString, maintainColumn.sheetId, maintainColumn.gid);
-        console.log(value)
+            `select 
+            ${this.maintainColumn.maintainNumber},
+            ${this.maintainColumn.name},
+            ${this.maintainColumn.phone},
+            ${this.maintainColumn.time},
+            ${this.maintainColumn.locate},
+            ${this.maintainColumn.item},
+            ${this.maintainColumn.maintainState},
+            ${this.maintainColumn.lineId} where ${this.maintainColumn.maintainNumber} = ${maintainId}`;
+        console.log(queryString);
+        const value = await googleSheets.querySheet(auth, queryString, this.maintainColumn.sheetId, this.maintainColumn.gid);
+        console.log(value);
         let maintain = new Maintain();
         if (value.length) {
             maintain.Id = value[0][0];
