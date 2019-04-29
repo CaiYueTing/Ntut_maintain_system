@@ -1,4 +1,4 @@
-import {Client, Message, TemplateMessage, TextMessage, WebhookEvent} from "@line/bot-sdk";
+import {Client, Message, TemplateMessage, TextMessage, WebhookEvent, FlexMessage} from "@line/bot-sdk";
 import {Config} from "../configs/Config";
 import {MaintainService} from "./MaintainService";
 import * as Dialogflow from "apiai";
@@ -111,8 +111,53 @@ export class LineBotService {
                 ]
             }
         };
+        const flexMessage: FlexMessage = {
+            "type": "flex",
+            "altText": "請填寫管理員註冊表單",
+            "contents": {
+                "type": "bubble",
+                "body": {
+                    "type": "box",
+                    "layout": "vertical",
+                    "contents": [
+                        {
+                            "type": "text",
+                            "text": "管理者人員管理",
+                            "weight": "bold",
+                            "size": "xxl",
+                            "margin": "md"
+                        },
+                        {
+                            "type": "text",
+                            "text": "請填寫管理員資料",
+                            "size": "md",
+                            "color": "#aaaaaa",
+                            "margin": "md",
+                            "wrap": true
+                        }
+                    ]
+                },
+                "footer": {
+                    "type": "box",
+                    "layout": "vertical",
+                    "spacing": "md",
+                    "contents": [
+                        {
+                            "type": "button",
+                            "style": "primary",
+                            "action": {
+                                "type": "uri",
+                                "label": "點擊填表",
+                                "uri": url
+                            }
+                        }
+                    ]
+                }
+            }
+        }
 
-        return this.pushMessage(groupId, lineMessage)
+
+        return this.pushMessage(groupId, flexMessage)
     };
 
     /**

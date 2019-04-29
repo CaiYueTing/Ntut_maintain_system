@@ -1,7 +1,7 @@
 import { SheetService } from "./SheetService"
 import { Maintain } from "../models/Maintain";
-import {LineBotService} from "./LineBotService";
-import {TemplateMessage, TextMessage} from "@line/bot-sdk";
+import { LineBotService } from "./LineBotService";
+import { TemplateMessage, TextMessage, FlexMessage } from "@line/bot-sdk";
 
 export class MaintainService {
 
@@ -53,11 +53,11 @@ export class MaintainService {
     }
 
     public getMaintainState(maintainState: string): string {
-        if (maintainState == "0"){
+        if (maintainState == "0") {
             return "尚未完成"
-        }else if (maintainState =="1"){
+        } else if (maintainState == "1") {
             return "已在維修中，請耐心等候"
-        }else{
+        } else {
             return "已經完成囉，感謝您的報修"
         }
     };
@@ -81,21 +81,66 @@ export class MaintainService {
                 ]
             }
         };
+        const flexMessage: FlexMessage = {
+            "type": "flex",
+            "altText": "請填寫報修表單",
+            "contents": {
+                "type": "bubble",
+                "body": {
+                    "type": "box",
+                    "layout": "vertical",
+                    "contents": [
+                        {
+                            "type": "text",
+                            "text": "維修系統報修",
+                            "weight": "bold",
+                            "size": "xxl",
+                            "margin": "md"
+                        },
+                        {
+                            "type": "text",
+                            "text": "請填寫報修資料",
+                            "size": "md",
+                            "color": "#aaaaaa",
+                            "margin": "md",
+                            "wrap": true
+                        }
+                    ]
+                },
+                "footer": {
+                    "type": "box",
+                    "layout": "vertical",
+                    "spacing": "md",
+                    "contents": [
+                        {
+                            "type": "button",
+                            "style": "primary",
+                            "action": {
+                                "type": "uri",
+                                "label": "點擊填表",
+                                "uri": url
+                            }
+                        }
+                    ]
+                }
+            }
+        }
 
-        return lineBotService.pushMessage(userId, lineMessage)
+
+        return lineBotService.pushMessage(userId, flexMessage)
     };
 
-    public async searchReport (userId: string, result: any) {
+    public async searchReport(userId: string, result: any) {
         const maintain = await this.getMaintainById(result.parameters.number);
         const lineBotService = new LineBotService();
-        if (maintain.Id == null){
+        if (maintain.Id == null) {
             const lineMessage: TextMessage = {
                 type: "text",
                 text: `您所查詢的單號不存在`
             };
 
             lineBotService.pushMessage(userId, lineMessage)
-        }else {
+        } else {
             const maintainState = this.getMaintainState(maintain.MaintainState);
 
             const lineMessage: TextMessage = {
