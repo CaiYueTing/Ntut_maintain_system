@@ -17,10 +17,10 @@ export const pushTextMessage = functions.https.onRequest((req, res) => {
     };
 
     lineBotService.pushMessage(lineId, textMessage).then((() => {
-        res.sendStatus(200)
+        return res.sendStatus(200)
     })).catch(err => {
         console.log(err);
-        res.sendStatus(400)
+        return res.sendStatus(400)
     });
 });
 
@@ -30,13 +30,19 @@ export const webhook = functions.https.onRequest((req, res) => {
 
     if (validateSignature(JSON.stringify(req.body), Config.LINE.channelSecret, signature)) {
         const events = req.body.events as Array<WebhookEvent>;
-        events.forEach(event => lineBotService.eventDispatcher(event).catch(err => console.log(err)))
+        events.forEach(event => lineBotService.eventDispatcher(event).catch(err => console.log(err)));
+
+        return res.sendStatus(200)
+    } else {
+
+        return res.sendStatus(401);
     }
-    res.sendStatus(200)
+
 });
 
 
 export const helloworld = functions.https.onRequest((req,res)=>{
     console.log("hello world");
-    res.sendStatus(200)
+
+    return res.sendStatus(200)
 });
