@@ -1,5 +1,4 @@
-import {ISheetService} from "../functions/src/services/SheetService/ISheetService";
-import {Maintain} from "../functions/src/models/Maintain";
+import {ISheetService} from "../src/services/SheetService/ISheetService";
 
 class MockSheetService implements ISheetService {
     readSheet(spreadsheetId: string, range: string): Promise<Array<any>> {
