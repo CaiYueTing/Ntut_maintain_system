@@ -4,7 +4,20 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "./node_modules/.bin/tsc",
+    "test": "mocha ./lib/test/index.js",
+    "test-with-coverage": "nyc mocha ./lib/test/index.js"
+  },
+  "nyc": {
+    "include": [
+      "./lib/**/*.js"
+    ],
+    "all": true,
+    "sourceMap": true,
+    "instrument": true,
+    "reporter": [
+      "text"
+    ]
   },
   "author": "",
   "license": "ISC",
@@ -13,7 +26,11 @@
     "@types/mocha": "^5.2.6",
     "assert": "^1.4.1",
     "chai": "^4.2.0",
+    "inversify": "^5.0.1",
     "mocha": "^6.1.4",
+    "nyc": "^14.0.0",
+    "reflect-metadata": "^0.1.13",
+    "should": "^13.2.3",
     "ts-node": "^8.1.0",
     "typescript": "^3.4.5"
   }

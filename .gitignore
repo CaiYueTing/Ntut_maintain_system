@@ -280,3 +280,6 @@ __pycache__/
 **/env.ts
 
 lib/
+
+#nyc
+.nyc_output/

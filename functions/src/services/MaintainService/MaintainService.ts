@@ -26,7 +26,6 @@ export class MaintainService implements IMaintainService {
     };
 
     async getMaintainById(maintainId: string): Promise<Maintain> {
-        console.log("getMaintain id:", maintainId);
         const queryString =
             `select 
             ${this.maintainColumn.maintainNumber},
@@ -37,9 +36,7 @@ export class MaintainService implements IMaintainService {
             ${this.maintainColumn.item},
             ${this.maintainColumn.maintainState},
             ${this.maintainColumn.lineId} where ${this.maintainColumn.maintainNumber} = ${maintainId}`;
-        console.log(queryString);
         const value = await this.sheetService.querySheet(queryString, this.maintainColumn.sheetId, this.maintainColumn.gid);
-        console.log(value);
         let maintain = new Maintain();
         if (value.length) {
             maintain.Id = value[0][0];
