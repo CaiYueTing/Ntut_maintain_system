@@ -1,7 +1,9 @@
 import {Config} from "../../configs/Config";
 import {IOAuth2ClientBuilder} from "./IOAuth2ClientBuilder";
 import {OAuth2Client} from "google-auth-library";
+import {injectable} from "inversify";
 
+@injectable()
 export class OAuth2ClientBuilder implements IOAuth2ClientBuilder {
 
     getOAuth2Client(): Promise<OAuth2Client> {
