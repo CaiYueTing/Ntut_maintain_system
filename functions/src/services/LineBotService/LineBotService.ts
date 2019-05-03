@@ -10,14 +10,16 @@ import {TYPES} from "../../ioc/types";
 @injectable()
 export class LineBotService implements ILineBotService {
 
+    private lineClient: Client;
+
     /**
      * Constructor
      */
     public constructor(
         @inject(TYPES.ILineBotClientBuilder) private lineClientBuilder: ILineClientBuilder,
         @inject(TYPES.IMaintainService) private maintainService: IMaintainService,
-        private lineClient: Client
     ) {
+        this.lineClient = lineClientBuilder.getLineClient();
     }
 
     /**
