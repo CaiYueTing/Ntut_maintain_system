@@ -2,14 +2,11 @@ import {IMaintainService} from "./IMaintainService";
 import {inject, injectable} from "inversify";
 import {ISheetService} from "../SheetService/ISheetService";
 import {Maintain} from "../../models/Maintain";
-import {TemplateMessage, TextMessage} from "@line/bot-sdk";
+import {FlexMessage, TextMessage} from "@line/bot-sdk";
 import {TYPES} from "../../ioc/types";
 
 @injectable()
 export class MaintainService implements IMaintainService {
-
-    public constructor(@inject(TYPES.ISheetService) private sheetService: ISheetService) {
-    }
 
     private readonly maintainColumn = {
         workspace: "維修表單",
@@ -25,7 +22,10 @@ export class MaintainService implements IMaintainService {
         lineId: "H"
     };
 
-    async getMaintainById(maintainId: string): Promise<Maintain> {
+    public constructor(@inject(TYPES.ISheetService) private sheetService: ISheetService) {
+    }
+
+    public async getMaintainById(maintainId: string): Promise<Maintain> {
         const queryString =
             `select 
             ${this.maintainColumn.maintainNumber},
@@ -52,7 +52,7 @@ export class MaintainService implements IMaintainService {
         return maintain;
     }
 
-    getMaintainState(maintainState: string): string {
+    public getMaintainState(maintainState: string): string {
         if (maintainState == "0") {
             return "尚未完成"
         } else if (maintainState == "1") {
@@ -62,28 +62,56 @@ export class MaintainService implements IMaintainService {
         }
     };
 
-    requestReport(userId: string): TemplateMessage {
+    public requestReport(userId: string): FlexMessage {
         let url = `https://docs.google.com/forms/d/e/1FAIpQLSd_xr_18k4FIPjBYECcwv2fc1dOT_IuZMxAgGJUuseg9KInmw/viewform?usp=pp_url&entry.815484785&entry.534784453&entry.1173029400&entry.142495844&entry.1574186958&entry.780437475=${userId}`;
 
         return {
-            type: "template",
-            altText: "This is a buttons template",
-            template: {
-                type: "buttons",
-                title: "維修系統報修",
-                text: "請填寫報修資料",
-                actions: [
-                    {
-                        type: "uri",
-                        label: "點擊填表",
-                        uri: url
-                    }
-                ]
+            "type": "flex",
+            "altText": "請填寫報修表單",
+            "contents": {
+                "type": "bubble",
+                "body": {
+                    "type": "box",
+                    "layout": "vertical",
+                    "contents": [
+                        {
+                            "type": "text",
+                            "text": "維修系統報修",
+                            "weight": "bold",
+                            "size": "xxl",
+                            "margin": "md"
+                        },
+                        {
+                            "type": "text",
+                            "text": "請填寫報修資料",
+                            "size": "md",
+                            "color": "#aaaaaa",
+                            "margin": "md",
+                            "wrap": true
+                        }
+                    ]
+                },
+                "footer": {
+                    "type": "box",
+                    "layout": "vertical",
+                    "spacing": "md",
+                    "contents": [
+                        {
+                            "type": "button",
+                            "style": "primary",
+                            "action": {
+                                "type": "uri",
+                                "label": "點擊填表",
+                                "uri": url
+                            }
+                        }
+                    ]
+                }
             }
-        }
+        };
     };
 
-    async searchReport(userId: string, result: any): Promise<TextMessage> {
+    public async searchReport(userId: string, result: any): Promise<TextMessage> {
         const maintain = await this.getMaintainById(result.parameters.number);
 
         if (maintain.Id == null) {

@@ -40,8 +40,8 @@ describe('測試MaintainService', function () {
 describe('測試MaintainService', function () {
     it('測試requestReport取得message', async function () {
         const maintainService = new MaintainService(new MockSheetService());
-        const message = maintainService.requestReport("unittest123") as any;
+        const message = maintainService.requestReport("unittest123");
 
-        should(message.template.actions[0].uri).be.equal("https://docs.google.com/forms/d/e/1FAIpQLSd_xr_18k4FIPjBYECcwv2fc1dOT_IuZMxAgGJUuseg9KInmw/viewform?usp=pp_url&entry.815484785&entry.534784453&entry.1173029400&entry.142495844&entry.1574186958&entry.780437475=unittest123");
+        should(message.altText).be.equal("請填寫報修表單");
     })
 });
