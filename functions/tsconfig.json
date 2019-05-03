@@ -3,7 +3,7 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "types": ["reflect-metadata"],
-    "lib": ["es6"],
+    "lib": ["es6", "es2015"],
     "module": "commonjs",
     "noImplicitReturns": true,
     "outDir": "lib",
@@ -12,6 +12,7 @@
   },
   "compileOnSave": true,
   "include": [
-    "src"
+    "src",
+    "tests"
   ]
 }
