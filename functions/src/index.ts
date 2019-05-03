@@ -40,7 +40,6 @@ export const webhook = functions.https.onRequest((req, res) => {
 
 });
 
-
 export const helloworld = functions.https.onRequest((req,res)=>{
     console.log("hello world");
 

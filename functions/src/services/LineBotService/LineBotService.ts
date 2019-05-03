@@ -1,5 +1,5 @@
 import * as Dialogflow from "apiai";
-import {Client, Message, TemplateMessage, TextMessage, WebhookEvent} from "@line/bot-sdk";
+import {Client, Message, TextMessage, FlexMessage, WebhookEvent} from "@line/bot-sdk";
 import {Config} from "../../configs/Config";
 import {ILineBotService} from "./ILineBotService";
 import {ILineClientBuilder} from "./ILineClientBuilder";
@@ -96,24 +96,53 @@ export class LineBotService implements ILineBotService {
      */
     private replyJoinMessage(replyToken: string, groupId: string): Promise<any> {
         const url = `https://docs.google.com/forms/d/e/1FAIpQLScVJ6HRVM9Gnkvyb43mdxOEcB472LklXGPLBwo7RDw4i2t1GQ/viewform?usp=pp_url&entry.1321795441&entry.1527073535=${groupId}`;
-        const lineMessage: TemplateMessage = {
-            type: "template",
-            altText: "This is a buttons template",
-            template: {
-                type: "buttons",
-                title: "管理者人員管理",
-                text: "請填寫報修資料",
-                actions: [
-                    {
-                        type: "uri",
-                        label: "點擊填表",
-                        uri: url
-                    }
-                ]
+
+        const flexMessage: FlexMessage = {
+            "type": "flex",
+            "altText": "請填寫管理員註冊表單",
+            "contents": {
+                "type": "bubble",
+                "body": {
+                    "type": "box",
+                    "layout": "vertical",
+                    "contents": [
+                        {
+                            "type": "text",
+                            "text": "管理者人員管理",
+                            "weight": "bold",
+                            "size": "xxl",
+                            "margin": "md"
+                        },
+                        {
+                            "type": "text",
+                            "text": "請填寫管理員資料",
+                            "size": "md",
+                            "color": "#aaaaaa",
+                            "margin": "md",
+                            "wrap": true
+                        }
+                    ]
+                },
+                "footer": {
+                    "type": "box",
+                    "layout": "vertical",
+                    "spacing": "md",
+                    "contents": [
+                        {
+                            "type": "button",
+                            "style": "primary",
+                            "action": {
+                                "type": "uri",
+                                "label": "點擊填表",
+                                "uri": url
+                            }
+                        }
+                    ]
+                }
             }
         };
 
-        return this.pushMessage(groupId, lineMessage)
+        return this.pushMessage(groupId, flexMessage)
     };
 
     /**

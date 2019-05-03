@@ -1,12 +1,12 @@
 import {Maintain} from "../../models/Maintain";
-import {TemplateMessage, TextMessage} from "@line/bot-sdk";
+import {FlexMessage, TextMessage} from "@line/bot-sdk";
 
 export interface IMaintainService {
     getMaintainById(maintainId: string): Promise<Maintain>;
 
     getMaintainState(maintainState: string): string;
 
-    requestReport(userId: string): TemplateMessage;
+    requestReport(userId: string): FlexMessage;
 
     searchReport(userId: string, result: any): Promise<TextMessage>;
 }
