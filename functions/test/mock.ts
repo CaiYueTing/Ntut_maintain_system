@@ -15,7 +15,16 @@ class MockSheetService implements ISheetService {
 
     querySheet(queryString: string, sheetId: string, gid: string): Promise<Array<any>> {
         let result = new Array<string[]>();
-        result[0] = ["TestMaintainId"];
+        result[0] = [
+            "TestMaintainId",
+            "TestMaintainName",
+            "TestMaintainPhone",
+            "TestMaintainTime",
+            "TestMaintainLocate",
+            "TestMaintainItem",
+            "TestMaintainMaintainState",
+            "TestMaintainLineId"
+        ];
 
         return Promise.resolve(result);
     }
