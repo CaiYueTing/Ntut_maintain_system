@@ -15,7 +15,19 @@
   },
   "nyc": {
     "extends": "@istanbuljs/nyc-config-typescript",
-    "all": true,
+    "all": false,
+    "exclude": [
+      "src/configs/*.ts",
+      "src/ioc/*.ts",
+      "src/models/*.ts",
+      "src/env.ts",
+      "src/global.ts",
+      "src/index.ts",
+      "test/mock.ts"
+    ],
+    "extension": [
+      ".ts"
+    ],
     "reporter": [
       "text"
     ]
