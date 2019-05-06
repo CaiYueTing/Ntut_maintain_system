@@ -1,25 +1,29 @@
-import * as Dialogflow from "apiai";
+import {Application} from "apiai";
 import {Client, Message, TextMessage, FlexMessage, WebhookEvent} from "@line/bot-sdk";
-import {Config} from "../../configs/Config";
+import {IDialogflowBuilder} from "./IDialogflowBuilder";
 import {ILineBotService} from "./ILineBotService";
 import {ILineClientBuilder} from "./ILineClientBuilder";
 import {IMaintainService} from "../MaintainService/IMaintainService";
-import {inject, injectable} from "inversify";
 import {TYPES} from "../../ioc/types";
+import {inject, injectable} from "inversify";
 
 @injectable()
 export class LineBotService implements ILineBotService {
 
     private lineClient: Client;
 
+    private dialogflowAgent: Application;
+
     /**
      * Constructor
      */
     public constructor(
+        @inject(TYPES.IDialogflowBuilder) private dialogflowBuilder: IDialogflowBuilder,
         @inject(TYPES.ILineBotClientBuilder) private lineClientBuilder: ILineClientBuilder,
         @inject(TYPES.IMaintainService) private maintainService: IMaintainService,
     ) {
-        this.lineClient = lineClientBuilder.getLineClient();
+        this.dialogflowAgent = this.dialogflowBuilder.getDialogflow();
+        this.lineClient = this.lineClientBuilder.getLineClient();
     }
 
     /**
@@ -41,7 +45,9 @@ export class LineBotService implements ILineBotService {
 
             case "message":
                 if (event.message.type === "text") {
-                    this.messageDispatcher(userId, event.message.text)
+                    this.messageDispatcher(userId, event.message.text);
+
+                    return Promise.resolve("message passed.");
                 }
 
                 return Promise.resolve(null);
@@ -57,7 +63,7 @@ export class LineBotService implements ILineBotService {
      * @param lineMessage
      */
     public pushMessage(userId: string, lineMessage: Message | Array<Message>): Promise<any> {
-        return this.lineClient.pushMessage(userId, lineMessage)
+        return this.lineClient.pushMessage(userId, lineMessage);
     }
 
     /**
@@ -66,7 +72,7 @@ export class LineBotService implements ILineBotService {
      * @param lineMessage
      */
     public replyMessage(replyToken: string, lineMessage: Message | Array<Message>): Promise<any> {
-        return this.lineClient.replyMessage(replyToken, lineMessage)
+        return this.lineClient.replyMessage(replyToken, lineMessage);
     };
 
     /**
@@ -86,7 +92,7 @@ export class LineBotService implements ILineBotService {
             text: `《報修系統》指令如下，請多利用：\n1. 我要報修\n2. 查詢報修狀況，請輸入:\n查詢 0001(單號)`
         };
 
-        return this.pushMessage(userId, commandMessage)
+        return this.pushMessage(userId, commandMessage);
     };
 
     /**
@@ -142,7 +148,7 @@ export class LineBotService implements ILineBotService {
             }
         };
 
-        return this.pushMessage(groupId, flexMessage)
+        return this.pushMessage(groupId, flexMessage);
     };
 
     /**
@@ -151,13 +157,12 @@ export class LineBotService implements ILineBotService {
      * @param message
      */
     private messageDispatcher(userId: string, message: string) {
-        const dialogFlowAgent = Dialogflow(Config.DIALOGFLOW.agentToken);
-        const request = dialogFlowAgent.textRequest(message, { sessionId: userId });
+        const request = this.dialogflowAgent.textRequest(message, { sessionId: userId });
 
         request.on("response", response => {
             this.actionDispatcher(userId, response.result).catch(err => console.log(err));
         }).end();
-        request.on("error", error => console.log("Error: ", error))
+        request.on("error", error => console.log("Error: ", error));
     };
 
     /**
@@ -168,7 +173,7 @@ export class LineBotService implements ILineBotService {
     private async actionDispatcher(userId: string, result: any): Promise<any> {
         const action = result.action;
 
-        switch(action){
+        switch(action) {
             case "requestReport":
                 const requestReportMessage = this.maintainService.requestReport(userId);
                 return this.pushMessage(userId, requestReportMessage);
