@@ -1,12 +1,16 @@
 import "reflect-metadata";
 import 'mocha';
+import * as Dialogflow from "apiai";
 import * as TypeMoq from 'typemoq';
 import * as should from 'should'
+import {DialogflowAgentBuilder} from "../src/services/LineBotService/DialogflowAgentBuilder";
+import {DialogflowService} from "../src/services/DialogflowService/DialogflowService";
 import {Group, ImageEventMessage, MessageEvent, TextEventMessage, User, WebhookEvent} from "@line/bot-sdk";
 import {LineBotService} from "../src/services/LineBotService/LineBotService";
+import {LineClientBuilder} from "../src/services/LineBotService/LineClientBuilder";
 import {MaintainService} from "../src/services/MaintainService/MaintainService";
 import {Maintain} from '../src/models/Maintain';
-import {MockDialogflowBuilder, MockLineClientBuilder, MockSheetService} from './mock';
+import {MockLineClient, MockSheetService} from './mock';
 import {OAuth2ClientBuilder} from "../src/services/SheetService/OAuth2ClientBuilder";
 
 describe('測試MaintainService', function () {
@@ -81,22 +85,27 @@ describe("測試OAuth2ClientBuilder", function () {
 });
 
 describe("測試LineBotService", function () {
+    LineClientBuilder.LineClient = new MockLineClient({
+        channelAccessToken: "UnitTest",
+        channelSecret: "UnitTest"
+    });
+
     it("測試LineBotService成功PushMessage", async function () {
-        const service = new LineBotService(new MockDialogflowBuilder(), new MockLineClientBuilder(), new MaintainService(new MockSheetService()));
+        const service = new LineBotService(new DialogflowService(new MaintainService(new MockSheetService())), new MaintainService(new MockSheetService()));
         const result = await service.pushMessage("SomeOne", {type: "text", text: "PushMessageSuccess"});
 
         should(result).be.equal("success");
     });
 
     it("測試LineBotService成功ReplyMessage", async function () {
-        const service = new LineBotService(new MockDialogflowBuilder(), new MockLineClientBuilder(), new MaintainService(new MockSheetService()));
+        const service = new LineBotService(new DialogflowService(new MaintainService(new MockSheetService())), new MaintainService(new MockSheetService()));
         const result = await service.replyMessage("SomeReplyToken", {type: "text", text: "PushMessageSuccess"});
 
         should(result).be.equal("success");
     });
 
     it("測試LineBotService eventDispatcher之FollowEvent", async function () {
-        const service = new LineBotService(new MockDialogflowBuilder(), new MockLineClientBuilder(), new MaintainService(new MockSheetService()));
+        const service = new LineBotService(new DialogflowService(new MaintainService(new MockSheetService())), new MaintainService(new MockSheetService()));
 
         const mockEventSource = TypeMoq.Mock.ofType<User>();
         mockEventSource.setup(x => x.type).returns(() => "user");
@@ -111,7 +120,7 @@ describe("測試LineBotService", function () {
     });
 
     it("測試LineBotService eventDispatcher之JoinEvent", async function () {
-        const service = new LineBotService(new MockDialogflowBuilder(), new MockLineClientBuilder(), new MaintainService(new MockSheetService()));
+        const service = new LineBotService(new DialogflowService(new MaintainService(new MockSheetService())), new MaintainService(new MockSheetService()));
 
         const mockEventSource = TypeMoq.Mock.ofType<Group>();
         mockEventSource.setup(x => x.type).returns(() => "group");
@@ -126,7 +135,7 @@ describe("測試LineBotService", function () {
     });
 
     it("測試LineBotService eventDispatcher之JoinEvent失敗", async function () {
-        const service = new LineBotService(new MockDialogflowBuilder(), new MockLineClientBuilder(), new MaintainService(new MockSheetService()));
+        const service = new LineBotService(new DialogflowService(new MaintainService(new MockSheetService())), new MaintainService(new MockSheetService()));
 
         const mockEventSource = TypeMoq.Mock.ofType<User>();
         mockEventSource.setup(x => x.type).returns(() => "user");
@@ -141,7 +150,7 @@ describe("測試LineBotService", function () {
     });
 
     it("測試LineBotService之MessageEvent", async function () {
-        const service = new LineBotService(new MockDialogflowBuilder(), new MockLineClientBuilder(), new MaintainService(new MockSheetService()));
+        const service = new LineBotService(new DialogflowService(new MaintainService(new MockSheetService())), new MaintainService(new MockSheetService()));
 
         const mockEventSource = TypeMoq.Mock.ofType<User>();
         mockEventSource.setup(x => x.type).returns(() => "user");
@@ -161,7 +170,7 @@ describe("測試LineBotService", function () {
     });
 
     it("測試LineBotService eventDispatcher之MessageEvent非text message", async function () {
-        const service = new LineBotService(new MockDialogflowBuilder(), new MockLineClientBuilder(), new MaintainService(new MockSheetService()));
+        const service = new LineBotService(new DialogflowService(new MaintainService(new MockSheetService())), new MaintainService(new MockSheetService()));
 
         const mockEventSource = TypeMoq.Mock.ofType<User>();
         mockEventSource.setup(x => x.type).returns(() => "user");
@@ -180,7 +189,7 @@ describe("測試LineBotService", function () {
     });
 
     it("測試LineBotService eventDispatcher之無可用dispatch", async function () {
-        const service = new LineBotService(new MockDialogflowBuilder(), new MockLineClientBuilder(), new MaintainService(new MockSheetService()));
+        const service = new LineBotService(new DialogflowService(new MaintainService(new MockSheetService())), new MaintainService(new MockSheetService()));
 
         const mockEventSource = TypeMoq.Mock.ofType<User>();
         mockEventSource.setup(x => x.type).returns(() => "user");
@@ -192,5 +201,44 @@ describe("測試LineBotService", function () {
 
         const result = await service.eventDispatcher(mockEvent.object);
         should(result).be.equal(null);
+    });
+});
+
+describe("測試DialogflowService", function () {
+    it("測試dispatchMessage查詢", function (done) {
+        const service = new DialogflowService(new MaintainService(new MockSheetService()));
+
+        service.dispatchMessage("SomeOne", "查詢3", (userId, message) => {
+            should((message as any).text).be.equal("您所查詢的單號不存在");
+            done();
+        });
+    });
+
+    it("測試dispatchMessage我要報修", function (done) {
+        const service = new DialogflowService(new MaintainService(new MockSheetService()));
+
+        service.dispatchMessage("SomeOne", "我要報修", (userId, message) => {
+            should((message as any).altText).be.equal("請填寫報修表單");
+            done();
+        });
+    });
+
+    it("測試dispatchMessage錯誤訊息", function (done) {
+        const service = new DialogflowService(new MaintainService(new MockSheetService()));
+
+        service.dispatchMessage("SomeOne", "我幹你老師", (userId, message) => {
+            should((message as any).text).be.equal("您所說的......\n{我幹你老師}\n不是報修系統的指令");
+            done();
+        });
+    });
+
+    it("測試dispatchMessage錯誤回應", function (done) {
+        DialogflowAgentBuilder.DialogflowAgent = Dialogflow("UnitTestingMockToken");
+        const service = new DialogflowService(new MaintainService(new MockSheetService()));
+
+        service.dispatchMessage("SomeOne", "我幹你老師", (userId, message) => {}, error => {
+            should((error as any).message).be.equal("Wrong response status code.");
+            done();
+        });
     });
 });

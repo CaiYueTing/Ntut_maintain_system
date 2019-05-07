@@ -1,29 +1,21 @@
-import {Application} from "apiai";
-import {Client, Message, TextMessage, FlexMessage, WebhookEvent} from "@line/bot-sdk";
-import {IDialogflowBuilder} from "./IDialogflowBuilder";
+import {IDialogflowService} from "../DialogflowService/IDialogflowService";
 import {ILineBotService} from "./ILineBotService";
-import {ILineClientBuilder} from "./ILineClientBuilder";
 import {IMaintainService} from "../MaintainService/IMaintainService";
+import {Message, TextMessage, FlexMessage, WebhookEvent} from "@line/bot-sdk";
 import {TYPES} from "../../ioc/types";
 import {inject, injectable} from "inversify";
+import {LineClientBuilder} from "./LineClientBuilder";
 
 @injectable()
 export class LineBotService implements ILineBotService {
-
-    private lineClient: Client;
-
-    private dialogflowAgent: Application;
 
     /**
      * Constructor
      */
     public constructor(
-        @inject(TYPES.IDialogflowBuilder) private dialogflowBuilder: IDialogflowBuilder,
-        @inject(TYPES.ILineBotClientBuilder) private lineClientBuilder: ILineClientBuilder,
+        @inject(TYPES.IDialogflowService) private dialogflowService: IDialogflowService,
         @inject(TYPES.IMaintainService) private maintainService: IMaintainService,
     ) {
-        this.dialogflowAgent = this.dialogflowBuilder.getDialogflow();
-        this.lineClient = this.lineClientBuilder.getLineClient();
     }
 
     /**
@@ -45,7 +37,7 @@ export class LineBotService implements ILineBotService {
 
             case "message":
                 if (event.message.type === "text") {
-                    this.messageDispatcher(userId, event.message.text);
+                    this.dialogflowService.dispatchMessage(userId, event.message.text, this.pushMessage);
 
                     return Promise.resolve("message passed.");
                 }
@@ -63,7 +55,7 @@ export class LineBotService implements ILineBotService {
      * @param lineMessage
      */
     public pushMessage(userId: string, lineMessage: Message | Array<Message>): Promise<any> {
-        return this.lineClient.pushMessage(userId, lineMessage);
+        return LineClientBuilder.LineClient.pushMessage(userId, lineMessage);
     }
 
     /**
@@ -72,7 +64,7 @@ export class LineBotService implements ILineBotService {
      * @param lineMessage
      */
     public replyMessage(replyToken: string, lineMessage: Message | Array<Message>): Promise<any> {
-        return this.lineClient.replyMessage(replyToken, lineMessage);
+        return LineClientBuilder.LineClient.replyMessage(replyToken, lineMessage);
     };
 
     /**
@@ -149,46 +141,5 @@ export class LineBotService implements ILineBotService {
         };
 
         return this.pushMessage(groupId, flexMessage);
-    };
-
-    /**
-     * Message dispatcher
-     * @param userId
-     * @param message
-     */
-    private messageDispatcher(userId: string, message: string) {
-        const request = this.dialogflowAgent.textRequest(message, { sessionId: userId });
-
-        request.on("response", response => {
-            this.actionDispatcher(userId, response.result).catch(err => console.log(err));
-        }).end();
-        request.on("error", error => console.log("Error: ", error));
-    };
-
-    /**
-     * Action dispatcher
-     * @param userId
-     * @param result
-     */
-    private async actionDispatcher(userId: string, result: any): Promise<any> {
-        const action = result.action;
-
-        switch(action) {
-            case "requestReport":
-                const requestReportMessage = this.maintainService.requestReport(userId);
-                return this.pushMessage(userId, requestReportMessage);
-
-            case "searchReport":
-                const searchReportMessage = await this.maintainService.searchReport(userId, result);
-                return this.pushMessage(userId, searchReportMessage);
-
-            default:
-                const errorMessage: TextMessage = {
-                    type: "text",
-                    text: (result.fulfillment.messages[0].speech as string).replace("{{message}}", result.resolvedQuery)
-                };
-
-                return this.pushMessage(userId, errorMessage);
-        }
     };
 }

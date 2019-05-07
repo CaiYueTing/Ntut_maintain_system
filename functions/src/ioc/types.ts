@@ -2,8 +2,7 @@ export const TYPES = {
 
     // LineBot
     ILineBotService: Symbol.for("ILineBotService"),
-    ILineBotClientBuilder: Symbol.for("ILineBotClientBuilder"),
-    IDialogflowBuilder: Symbol.for("IDialogflowBuilder"),
+    IDialogflowService: Symbol.for("IDialogflowService"),
 
     // Maintain
     IMaintainService: Symbol.for("IMaintainService"),

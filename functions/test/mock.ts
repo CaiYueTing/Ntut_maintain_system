@@ -1,10 +1,6 @@
 import * as Types from "@line/bot-sdk/dist/types";
 import * as sinon from "sinon";
-import * as TypeMoq from "typemoq";
-import {Application, TextRequest} from "apiai";
 import {Client, FlexMessage, Message, TextMessage} from "@line/bot-sdk";
-import {IDialogflowBuilder} from "../src/services/LineBotService/IDialogflowBuilder";
-import {ILineClientBuilder} from "../src/services/LineBotService/ILineClientBuilder";
 import {ISheetService} from "../src/services/SheetService/ISheetService";
 
 function mockModule<T extends { [K: string]: any }>(moduleToMock: T, defaultMockValuesForMock: Partial<{ [K in keyof T]: T[K] }>) {
@@ -92,31 +88,8 @@ class MockLineClient extends Client {
     }
 }
 
-class MockLineClientBuilder implements ILineClientBuilder {
-    public getLineClient(): Client {
-        return new MockLineClient({
-            channelSecret: "MockChannelSecret",
-            channelAccessToken: "MockChannelAccessToken"
-        });
-    }
-}
-
-class MockDialogflowBuilder implements IDialogflowBuilder {
-    getDialogflow(): Application {
-        const mockRequest = TypeMoq.Mock.ofType<TextRequest>();
-        mockRequest.setup(x => x.on("response", TypeMoq.It.isAny())).returns(() => mockRequest.object);
-        mockRequest.setup(x => x.on("error", error => console.log("Error: ", error))).returns(() => mockRequest.object);
-
-        const mockAgent = TypeMoq.Mock.ofType<Application>();
-        mockAgent.setup(x => x.textRequest("requestReport", {sessionId: "SomeOne"})).returns(() => mockRequest.object);
-
-        return mockAgent.object;
-    }
-}
-
 export {
     mockModule,
     MockSheetService,
-    MockLineClientBuilder,
-    MockDialogflowBuilder
+    MockLineClient
 };
