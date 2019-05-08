@@ -3,7 +3,7 @@ import 'mocha';
 import * as Dialogflow from "apiai";
 import * as TypeMoq from 'typemoq';
 import * as should from 'should'
-import {DialogflowAgentBuilder} from "../src/services/LineBotService/DialogflowAgentBuilder";
+import {DialogflowAgentBuilder} from "../src/services/DialogflowService/DialogflowAgentBuilder";
 import {DialogflowService} from "../src/services/DialogflowService/DialogflowService";
 import {Group, ImageEventMessage, MessageEvent, TextEventMessage, User, WebhookEvent} from "@line/bot-sdk";
 import {LineBotService} from "../src/services/LineBotService/LineBotService";

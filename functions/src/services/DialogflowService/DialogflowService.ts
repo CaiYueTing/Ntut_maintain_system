@@ -1,4 +1,4 @@
-import {DialogflowAgentBuilder} from "../LineBotService/DialogflowAgentBuilder";
+import {DialogflowAgentBuilder} from "./DialogflowAgentBuilder";
 import {IDialogflowService} from "./IDialogflowService";
 import {IMaintainService} from "../MaintainService/IMaintainService";
 import {Message, TextMessage} from "@line/bot-sdk";
