@@ -1,8 +1,8 @@
 import "reflect-metadata";
 import 'mocha';
 import * as Dialogflow from "apiai";
-import * as TypeMoq from 'typemoq';
 import * as should from 'should'
+import * as TypeMoq from 'typemoq';
 import {DialogflowAgentBuilder} from "../src/services/DialogflowService/DialogflowAgentBuilder";
 import {DialogflowService} from "../src/services/DialogflowService/DialogflowService";
 import {Group, ImageEventMessage, MessageEvent, TextEventMessage, User, WebhookEvent} from "@line/bot-sdk";
@@ -12,6 +12,7 @@ import {MaintainService} from "../src/services/MaintainService/MaintainService";
 import {Maintain} from '../src/models/Maintain';
 import {MockLineClient, MockSheetService} from './mock';
 import {OAuth2ClientBuilder} from "../src/services/SheetService/OAuth2ClientBuilder";
+import {SheetService} from "../src/services/SheetService/SheetService";
 
 describe('測試MaintainService', function () {
     it('測試querySheet成功取得Maintain資料', async function () {
@@ -239,6 +240,26 @@ describe("測試DialogflowService", function () {
         service.dispatchMessage("SomeOne", "我幹你老師", (userId, message) => {}, error => {
             should((error as any).message).be.equal("Wrong response status code.");
             done();
+        });
+    });
+});
+
+describe("測試SheetService", function () {
+    it('測試SheetService之querySheet', function (done) {
+        const service = new SheetService(new OAuth2ClientBuilder());
+        service.querySheet(`select 
+            A,
+            B,
+            C,
+            D,
+            E,
+            F,
+            G,
+            H where A = 3`, "1NXg4N7efrk35ATI94N8j8bTRPFwVc2cZ8zYt9AwzpYs", "0").then(result => {
+            should(result).Array();
+            done();
+        }).catch(error => {
+            throw error;
         });
     });
 });
