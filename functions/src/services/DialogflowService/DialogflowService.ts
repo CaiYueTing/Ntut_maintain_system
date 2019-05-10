@@ -1,9 +1,9 @@
 import {DialogflowAgentBuilder} from "./DialogflowAgentBuilder";
 import {IDialogflowService} from "./IDialogflowService";
 import {IMaintainService} from "../MaintainService/IMaintainService";
+import {inject, injectable} from "inversify";
 import {Message, TextMessage} from "@line/bot-sdk";
 import {TYPES} from "../../ioc/types";
-import {inject, injectable} from "inversify";
 
 @injectable()
 export class DialogflowService implements IDialogflowService {
