@@ -6,7 +6,7 @@ import {injectable} from "inversify";
 @injectable()
 export class OAuth2ClientBuilder implements IOAuth2ClientBuilder {
 
-    getOAuth2Client(): Promise<OAuth2Client> {
+    public getOAuth2Client(): Promise<OAuth2Client> {
 
         return new Promise(resolve => {
             const secret = Config.SHEETCLIENTSECRET.installed.client_secret;

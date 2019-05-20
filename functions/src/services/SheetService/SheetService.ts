@@ -15,7 +15,7 @@ export class SheetService implements ISheetService {
         this.oAuth2ClientPromise = this.authClientFactory.getOAuth2Client();
     }
 
-    readSheet(spreadsheetId: string, range: string): Promise<Array<any>> {
+    public readSheet(spreadsheetId: string, range: string): Promise<Array<any>> {
         return new Promise((resolve, reject) => {
             const sheets = google.sheets("v4");
             sheets.spreadsheets.values.get({
@@ -32,7 +32,7 @@ export class SheetService implements ISheetService {
         });
     }
 
-    appendSheet(spreadsheetId: string, range: string, values: any): Promise<any> {
+    public appendSheet(spreadsheetId: string, range: string, values: any): Promise<any> {
         return new Promise((resolve, reject) => {
             const sheets = google.sheets("v4");
             sheets.spreadsheets.values.append({
@@ -53,7 +53,7 @@ export class SheetService implements ISheetService {
         });
     }
 
-    writeSheet(spreadsheetId: string, range: string, values: any): Promise<any> {
+    public writeSheet(spreadsheetId: string, range: string, values: any): Promise<any> {
         return new Promise(async (resolve, reject) => {
             const sheets = google.sheets("v4");
             const body = {values: values};
@@ -75,7 +75,7 @@ export class SheetService implements ISheetService {
         });
     }
 
-    querySheet(queryString: string, sheetId: string, gid: string): Promise<Array<any>> {
+    public querySheet(queryString: string, sheetId: string, gid: string): Promise<Array<any>> {
         return new Promise(async (resolve, reject) => {
             const reg = /google.visualization.Query.setResponse\((.*)\)/g;
             const query = encodeURI(queryString);

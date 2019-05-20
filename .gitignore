@@ -283,3 +283,4 @@ lib/
 
 #nyc
 .nyc_output/
+coverage/

@@ -37,7 +37,6 @@ export const webhook = functions.https.onRequest((req, res) => {
 
         return res.sendStatus(401);
     }
-
 });
 
 export const helloworld = functions.https.onRequest((req,res)=>{
