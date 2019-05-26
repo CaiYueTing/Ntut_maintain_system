@@ -15,65 +15,65 @@ export class SheetService implements ISheetService {
         this.oAuth2ClientPromise = this.authClientFactory.getOAuth2Client();
     }
 
-    public readSheet(spreadsheetId: string, range: string): Promise<Array<any>> {
-        return new Promise((resolve, reject) => {
-            const sheets = google.sheets("v4");
-            sheets.spreadsheets.values.get({
-                auth: this.oAuth2ClientPromise,
-                spreadsheetId: spreadsheetId,
-                range: range
-            }, (error, result) => {
-                if (error) {
-                    console.log("The API returned an error: ", error);
-                    reject(error);
-                } else
-                    resolve(result.data.values);
-            });
-        });
-    }
+    // public readSheet(spreadsheetId: string, range: string): Promise<Array<any>> {
+    //     return new Promise((resolve, reject) => {
+    //         const sheets = google.sheets("v4");
+    //         sheets.spreadsheets.values.get({
+    //             auth: this.oAuth2ClientPromise,
+    //             spreadsheetId: spreadsheetId,
+    //             range: range
+    //         }, (error, result) => {
+    //             if (error) {
+    //                 console.log("The API returned an error: ", error);
+    //                 reject(error);
+    //             } else
+    //                 resolve(result.data.values);
+    //         });
+    //     });
+    // }
 
-    public appendSheet(spreadsheetId: string, range: string, values: any): Promise<any> {
-        return new Promise((resolve, reject) => {
-            const sheets = google.sheets("v4");
-            sheets.spreadsheets.values.append({
-                auth: this.oAuth2ClientPromise,
-                spreadsheetId: spreadsheetId,
-                range: range,
-                valueInputOption: "USER_ENTERED",
-                resource: {values: values}
-            }, (error, result) => {
-                if (error) {
-                    console.log(error);
-                    reject(error);
-                } else {
-                    console.log("%d cells appended.", result.data.updates.updatedCells);
-                    resolve(result);
-                }
-            })
-        });
-    }
+    // public appendSheet(spreadsheetId: string, range: string, values: any): Promise<any> {
+    //     return new Promise((resolve, reject) => {
+    //         const sheets = google.sheets("v4");
+    //         sheets.spreadsheets.values.append({
+    //             auth: this.oAuth2ClientPromise,
+    //             spreadsheetId: spreadsheetId,
+    //             range: range,
+    //             valueInputOption: "USER_ENTERED",
+    //             resource: {values: values}
+    //         }, (error, result) => {
+    //             if (error) {
+    //                 console.log(error);
+    //                 reject(error);
+    //             } else {
+    //                 console.log("%d cells appended.", result.data.updates.updatedCells);
+    //                 resolve(result);
+    //             }
+    //         })
+    //     });
+    // }
 
-    public writeSheet(spreadsheetId: string, range: string, values: any): Promise<any> {
-        return new Promise(async (resolve, reject) => {
-            const sheets = google.sheets("v4");
-            const body = {values: values};
-            sheets.spreadsheets.values.update({
-                spreadsheetId: spreadsheetId,
-                range: range,
-                valueInputOption: "USER_ENTERED",
-                resource: body,
-                auth: this.oAuth2ClientPromise
-            }, (error, result) => {
-                if (error) {
-                    console.log("The API returned an error: ", error);
-                    reject(error)
-                } else {
-                    console.log("%d cells updated. ", result.data.updatedCells);
-                    resolve(result)
-                }
-            });
-        });
-    }
+    // public writeSheet(spreadsheetId: string, range: string, values: any): Promise<any> {
+    //     return new Promise(async (resolve, reject) => {
+    //         const sheets = google.sheets("v4");
+    //         const body = {values: values};
+    //         sheets.spreadsheets.values.update({
+    //             spreadsheetId: spreadsheetId,
+    //             range: range,
+    //             valueInputOption: "USER_ENTERED",
+    //             resource: body,
+    //             auth: this.oAuth2ClientPromise
+    //         }, (error, result) => {
+    //             if (error) {
+    //                 console.log("The API returned an error: ", error);
+    //                 reject(error)
+    //             } else {
+    //                 console.log("%d cells updated. ", result.data.updatedCells);
+    //                 resolve(result)
+    //             }
+    //         });
+    //     });
+    // }
 
     public querySheet(queryString: string, sheetId: string, gid: string): Promise<Array<any>> {
         return new Promise(async (resolve, reject) => {
