@@ -9,7 +9,29 @@
     "shell": "npm run build && firebase experimental:functions:shell",
     "start": "npm run shell",
     "deploy": "firebase deploy --only functions",
-    "logs": "firebase functions:log"
+    "logs": "firebase functions:log",
+    "test": "mocha",
+    "test-with-coverage": "nyc mocha"
+  },
+  "nyc": {
+    "extends": "@istanbuljs/nyc-config-typescript",
+    "all": false,
+    "exclude": [
+      "src/configs/*.ts",
+      "src/ioc/*.ts",
+      "src/models/*.ts",
+      "src/env.ts",
+      "src/global.ts",
+      "src/index.ts",
+      "test/mock.ts"
+    ],
+    "extension": [
+      ".ts"
+    ],
+    "reporter": [
+      "text",
+      "html"
+    ]
   },
   "main": "lib/index.js",
   "dependencies": {
@@ -21,10 +43,28 @@
     "firebase-functions": "^2.3.0",
     "google-auth-library": "^1.6.1",
     "googleapis": "^27.0.0",
+    "inversify": "^5.0.1",
     "moment-timezone": "^0.5.25",
-    "node-cache": "^4.1.1"
+    "node-cache": "^4.1.1",
+    "reflect-metadata": "^0.1.13"
   },
   "devDependencies": {
+    "@istanbuljs/nyc-config-typescript": "^0.1.3",
+    "@types/chai": "^4.1.7",
+    "@types/mocha": "^5.2.6",
+    "@types/sinon": "^7.0.11",
+    "assert": "^1.4.1",
+    "chai": "^4.2.0",
+    "jest": "^24.8.0",
+    "mocha": "^6.1.4",
+    "nyc": "^14.0.0",
+    "should": "^13.2.3",
+    "sinon": "^7.3.2",
+    "source-map-support": "^0.5.12",
+    "ts-mockito": "^2.3.1",
+    "ts-node": "^8.1.0",
+    "ts-sinon": "^1.0.17",
+    "typemoq": "^2.1.0",
     "typescript": "^3.4.5"
   },
   "private": true
