@@ -1,9 +1,9 @@
-import {DialogflowAgentBuilder} from "./DialogflowAgentBuilder";
-import {IDialogflowService} from "./IDialogflowService";
-import {IMaintainService} from "../MaintainService/IMaintainService";
-import {inject, injectable} from "inversify";
-import {Message, TextMessage} from "@line/bot-sdk";
-import {TYPES} from "../../ioc/types";
+import { DialogflowAgentBuilder } from "./DialogflowAgentBuilder";
+import { IDialogflowService } from "./IDialogflowService";
+import { IMaintainService } from "../MaintainService/IMaintainService";
+import { inject, injectable } from "inversify";
+import { Message, TextMessage } from "@line/bot-sdk";
+import { TYPES } from "../../ioc/types";
 
 @injectable()
 export class DialogflowService implements IDialogflowService {
@@ -12,14 +12,14 @@ export class DialogflowService implements IDialogflowService {
     }
 
     public dispatchMessage(
-        userId: string, message: string, lineMessageCallback: (userId: string, message: Message | Array<Message>) => void, errorCallback? : (error) => void) {
-        const request = DialogflowAgentBuilder.DialogflowAgent.textRequest(message, {sessionId: userId});
+        userId: string, message: string, lineMessageCallback: (userId: string, message: Message | Array<Message>) => void, errorCallback?: (error) => void) {
+        const request = DialogflowAgentBuilder.DialogflowAgent.textRequest(message, { sessionId: userId });
 
         request.on("response", async response => {
 
             const action = response.result.action;
-            console.log("dialogflow action:", action)
-            switch(action) {
+            // console.log("dialogflow action:", action)
+            switch (action) {
                 case "requestReport":
                     const requestReportMessage = this.maintainService.requestReport(userId);
                     lineMessageCallback(userId, requestReportMessage);
@@ -31,7 +31,8 @@ export class DialogflowService implements IDialogflowService {
                     break;
 
                 case "downloadForm":
-                    this.maintainService.downloadForm(userId);
+                    const fileMessage = await this.maintainService.downloadForm(userId);
+                    lineMessageCallback(userId, fileMessage)
                     break;
 
                 default:

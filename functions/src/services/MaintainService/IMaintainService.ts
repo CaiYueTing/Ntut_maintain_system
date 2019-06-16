@@ -1,5 +1,5 @@
 import {Maintain} from "../../models/Maintain";
-import {FlexMessage, TextMessage} from "@line/bot-sdk";
+import {FlexMessage, TextMessage, FileEventMessage} from "@line/bot-sdk";
 
 export interface IMaintainService {
     getMaintainById(maintainId: string): Promise<Maintain>;
@@ -12,5 +12,5 @@ export interface IMaintainService {
 
     getAllMaintain();
 
-    downloadForm(userId: string);
+    downloadForm(userId: string): Promise<FlexMessage>;
 }

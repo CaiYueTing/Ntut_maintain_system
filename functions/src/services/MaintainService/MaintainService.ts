@@ -1,9 +1,10 @@
 import { IMaintainService } from "./IMaintainService";
 import { inject, injectable } from "inversify";
 import { ISheetService } from "../SheetService/ISheetService";
-import { Maintain } from "../../models/Maintain";
+import { Maintain, Admin } from "../../models/Maintain";
 import { FlexMessage, TextMessage, FileEventMessage } from "@line/bot-sdk";
 import { TYPES } from "../../ioc/types";
+import { exists } from "fs";
 
 @injectable()
 export class MaintainService implements IMaintainService {
@@ -21,6 +22,15 @@ export class MaintainService implements IMaintainService {
         maintainState: "G",
         lineId: "H"
     };
+
+    private readonly adminColumn = {
+        workspace: "維修表單",
+        sheetId: "1NXg4N7efrk35ATI94N8j8bTRPFwVc2cZ8zYt9AwzpYs",
+        gid: "436125657",
+        adminId: "A",
+        name: "B",
+        groupId: "C"
+    }
 
     public constructor(@inject(TYPES.ISheetService) private sheetService: ISheetService) {
     }
@@ -64,26 +74,44 @@ export class MaintainService implements IMaintainService {
             ${this.maintainColumn.maintainState},
             ${this.maintainColumn.lineId}`;
         const value = await this.sheetService.querySheet(queryString, this.maintainColumn.sheetId, this.maintainColumn.gid);
-        console.log("the line of form : ", value.length)
-        
+        // console.log("the line of form : ", value.length)
         let arr = [];
-
         if (value.length) {
             value.forEach(element => {
                 let maintain = {} as Maintain;
-                maintain.Id = element[0]
                 maintain.Name = element[1];
                 maintain.Phone = element[2];
                 maintain.Time = element[3];
                 maintain.Locate = element[4];
                 maintain.Item = element[5];
-                maintain.MaintainState = element[6];
-                maintain.LineId = element[7];
+                maintain.MaintainState = this.getMaintainState(element[6]);
                 arr.push(maintain)
             });
         }
-        
         return arr;
+    }
+
+    public async getAdminById(adminId: string): Promise<Boolean> {
+        const queryString =
+            `select 
+            ${this.adminColumn.adminId},
+            ${this.adminColumn.name},
+            ${this.adminColumn.groupId}`;
+        const value = await this.sheetService.querySheet(queryString, this.adminColumn.sheetId, this.adminColumn.gid);
+        let arr = []
+        if (value.length) {
+            value.forEach(element => {
+                let admin = {} as Admin;
+                admin.Name = element[1];
+                admin.GroupId = element[2];
+                arr.push(admin)
+            });
+        }
+        // console.log(value)
+        var isAdmin = arr.find(function(item, index, array){
+            return item.GroupId == adminId
+        })
+        return isAdmin;
     }
 
     public getMaintainState(maintainState: string): string {
@@ -163,8 +191,75 @@ export class MaintainService implements IMaintainService {
         }
     };
 
-    public async downloadForm(userId: string) {
-        const maintainArray = await this.getAllMaintain()
-        console.log("maintain array in maintain service new downloadfunction", maintainArray)
+    public async downloadForm(userId: string): Promise<FlexMessage> {
+        const isAdmin = await this.getAdminById(userId)
+        let url = `https://docs.google.com/spreadsheets/d/1NXg4N7efrk35ATI94N8j8bTRPFwVc2cZ8zYt9AwzpYs/edit#gid=0`;
+        if (isAdmin) {
+            return {
+                "type": "flex",
+                "altText": "完整表單",
+                "contents": {
+                    "type": "bubble",
+                    "body": {
+                        "type": "box",
+                        "layout": "vertical",
+                        "contents": [
+                            {
+                                "type": "text",
+                                "text": "完整表單",
+                                "weight": "bold",
+                                "size": "xxl",
+                                "margin": "md"
+                            },
+                            {
+                                "type": "text",
+                                "text": "完整表單連結",
+                                "size": "md",
+                                "color": "#aaaaaa",
+                                "margin": "md",
+                                "wrap": true
+                            }
+                        ]
+                    },
+                    "footer": {
+                        "type": "box",
+                        "layout": "vertical",
+                        "spacing": "md",
+                        "contents": [
+                            {
+                                "type": "button",
+                                "style": "primary",
+                                "action": {
+                                    "type": "uri",
+                                    "label": "點擊查看",
+                                    "uri": url
+                                }
+                            }
+                        ]
+                    }
+                }
+            };
+        }
+        return {
+            "type": "flex",
+            "altText": "您非管理者，無權查看此表單",
+            "contents": {
+                "type": "bubble",
+                "body": {
+                    "type": "box",
+                    "layout": "vertical",
+                    "contents": [
+                        {
+                            "type": "text",
+                            "text": "無權查看此表單",
+                            "size": "md",
+                            "color": "#ff2530",
+                            "margin": "md",
+                            "wrap": true
+                        }
+                    ]
+                }
+            }
+        }
     }
 }

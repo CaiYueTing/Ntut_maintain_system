@@ -37,8 +37,12 @@ export class LineBotService implements ILineBotService {
 
             case "message":
                 if (event.message.type === "text") {
-                    console.log("message content:", event.message.text)
-                    this.dialogflowService.dispatchMessage(userId, event.message.text, this.pushMessage);
+                    // console.log("message source:", event.source.type)
+                    if (event.source.type === "group") {
+                        this.dialogflowService.dispatchMessage(event.source.groupId, event.message.text, this.pushMessage);
+                    }else {
+                        this.dialogflowService.dispatchMessage(userId, event.message.text, this.pushMessage);
+                    }
 
                     return Promise.resolve("message passed.");
                 }

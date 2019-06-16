@@ -16,3 +16,13 @@ export class Maintain {
 
     public LineId: string = null;
 }
+
+export class Admin {
+
+    public Id: string = null;
+
+    public Name: string = null;
+
+    public GroupId: string = null;
+
+}
