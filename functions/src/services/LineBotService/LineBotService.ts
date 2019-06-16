@@ -1,10 +1,10 @@
-import {IDialogflowService} from "../DialogflowService/IDialogflowService";
-import {ILineBotService} from "./ILineBotService";
-import {IMaintainService} from "../MaintainService/IMaintainService";
-import {Message, TextMessage, FlexMessage, WebhookEvent} from "@line/bot-sdk";
-import {TYPES} from "../../ioc/types";
-import {inject, injectable} from "inversify";
-import {LineClientBuilder} from "./LineClientBuilder";
+import { IDialogflowService } from "../DialogflowService/IDialogflowService";
+import { ILineBotService } from "./ILineBotService";
+import { IMaintainService } from "../MaintainService/IMaintainService";
+import { Message, TextMessage, FlexMessage, WebhookEvent } from "@line/bot-sdk";
+import { TYPES } from "../../ioc/types";
+import { inject, injectable } from "inversify";
+import { LineClientBuilder } from "./LineClientBuilder";
 
 @injectable()
 export class LineBotService implements ILineBotService {
@@ -37,6 +37,7 @@ export class LineBotService implements ILineBotService {
 
             case "message":
                 if (event.message.type === "text") {
+                    console.log("message content:", event.message.text)
                     this.dialogflowService.dispatchMessage(userId, event.message.text, this.pushMessage);
 
                     return Promise.resolve("message passed.");
@@ -72,7 +73,7 @@ export class LineBotService implements ILineBotService {
      * @param replyToken
      * @param userId
      */
-    private async replyFollowMessage (replyToken: string, userId: string): Promise<any> {
+    private async replyFollowMessage(replyToken: string, userId: string): Promise<any> {
         const lineMessage: TextMessage = {
             type: "text",
             text: "歡迎使用報修系統，在這裡可以獲取每天維修報告"

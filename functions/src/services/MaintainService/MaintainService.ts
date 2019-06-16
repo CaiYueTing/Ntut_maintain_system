@@ -1,9 +1,9 @@
-import {IMaintainService} from "./IMaintainService";
-import {inject, injectable} from "inversify";
-import {ISheetService} from "../SheetService/ISheetService";
-import {Maintain} from "../../models/Maintain";
-import {FlexMessage, TextMessage} from "@line/bot-sdk";
-import {TYPES} from "../../ioc/types";
+import { IMaintainService } from "./IMaintainService";
+import { inject, injectable } from "inversify";
+import { ISheetService } from "../SheetService/ISheetService";
+import { Maintain } from "../../models/Maintain";
+import { FlexMessage, TextMessage, FileEventMessage } from "@line/bot-sdk";
+import { TYPES } from "../../ioc/types";
 
 @injectable()
 export class MaintainService implements IMaintainService {
@@ -50,6 +50,40 @@ export class MaintainService implements IMaintainService {
         }
 
         return maintain;
+    }
+
+    public async getAllMaintain(): Promise<Array<any>> {
+        const queryString =
+            `select 
+            ${this.maintainColumn.maintainNumber},
+            ${this.maintainColumn.name},
+            ${this.maintainColumn.phone},
+            ${this.maintainColumn.time},
+            ${this.maintainColumn.locate},
+            ${this.maintainColumn.item},
+            ${this.maintainColumn.maintainState},
+            ${this.maintainColumn.lineId}`;
+        const value = await this.sheetService.querySheet(queryString, this.maintainColumn.sheetId, this.maintainColumn.gid);
+        console.log("the line of form : ", value.length)
+        
+        let arr = [];
+
+        if (value.length) {
+            value.forEach(element => {
+                let maintain = {} as Maintain;
+                maintain.Id = element[0]
+                maintain.Name = element[1];
+                maintain.Phone = element[2];
+                maintain.Time = element[3];
+                maintain.Locate = element[4];
+                maintain.Item = element[5];
+                maintain.MaintainState = element[6];
+                maintain.LineId = element[7];
+                arr.push(maintain)
+            });
+        }
+        
+        return arr;
     }
 
     public getMaintainState(maintainState: string): string {
@@ -128,4 +162,9 @@ export class MaintainService implements IMaintainService {
             };
         }
     };
+
+    public async downloadForm(userId: string) {
+        const maintainArray = await this.getAllMaintain()
+        console.log("maintain array in maintain service new downloadfunction", maintainArray)
+    }
 }

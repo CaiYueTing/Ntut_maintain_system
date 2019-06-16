@@ -9,4 +9,8 @@ export interface IMaintainService {
     requestReport(userId: string): FlexMessage;
 
     searchReport(userId: string, result: any): Promise<TextMessage>;
+
+    getAllMaintain();
+
+    downloadForm(userId: string);
 }

@@ -18,7 +18,7 @@ export class DialogflowService implements IDialogflowService {
         request.on("response", async response => {
 
             const action = response.result.action;
-
+            console.log("dialogflow action:", action)
             switch(action) {
                 case "requestReport":
                     const requestReportMessage = this.maintainService.requestReport(userId);
@@ -28,6 +28,10 @@ export class DialogflowService implements IDialogflowService {
                 case "searchReport":
                     const searchReportMessage = await this.maintainService.searchReport(userId, response.result);
                     lineMessageCallback(userId, searchReportMessage);
+                    break;
+
+                case "downloadForm":
+                    this.maintainService.downloadForm(userId);
                     break;
 
                 default:
