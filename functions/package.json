@@ -45,7 +45,7 @@
     "googleapis": "^27.0.0",
     "inversify": "^5.0.1",
     "json2csv": "^4.5.1",
-    "moment-timezone": "^0.5.25",
+    "moment-timezone": "^0.5.35",
     "node-cache": "^4.1.1",
     "reflect-metadata": "^0.1.13"
   },
